@@ -1,0 +1,12 @@
+version: "3.9"
+services:
+    deckify:
+        build: 
+            context: .
+            dockerfile: build/Dockerfile
+        image: "deckify:${DECKIFY_VERSION}"
+        ports:
+            - "8080:8080"
+        env_file:
+            - .env
+        

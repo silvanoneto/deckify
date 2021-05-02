@@ -27,7 +27,7 @@ go run deckify.go
 
 ### How to run it locally (Docker)
 
-1. Create an .env file and sets the following environment variables:
+1. Create an .env file and set the following environment variables:
     - SPOTIFY_ID={your spotify client id}
     - SPOTIFY_SECRET={your spotify client secret}
     - DECKIFY_COLLECTOR_PAGESIZE=100

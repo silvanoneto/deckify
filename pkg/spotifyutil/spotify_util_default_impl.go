@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/silvanoneto/deckify/pkg/group"
 	"github.com/silvanoneto/deckify/pkg/user"
 	"github.com/zmb3/spotify"
 	"golang.org/x/oauth2"
@@ -13,21 +14,25 @@ import (
 
 type spotifyUtilDefaultImpl struct {
 	userRepo      *user.UserRepo
+	groupRepo     *group.GroupRepo
 	authenticator *spotify.Authenticator
 	state         string
 }
 
-func NewSpotifyUtilDefaultImpl(userRepo *user.UserRepo,
-	redirectURI string, state string) SpotifyUtil {
+func NewSpotifyUtilDefaultImpl(userRepo *user.UserRepo, groupRepo *group.GroupRepo, redirectURI string,
+	state string) SpotifyUtil {
 
 	scopes := []string{
 		spotify.ScopeUserReadPrivate,
 		spotify.ScopeUserReadRecentlyPlayed,
+		spotify.ScopePlaylistModifyPublic,
+		spotify.ScopePlaylistModifyPrivate,
 	}
 	authenticator := spotify.NewAuthenticator(redirectURI, scopes...)
 
 	return &spotifyUtilDefaultImpl{
 		userRepo:      userRepo,
+		groupRepo:     groupRepo,
 		authenticator: &authenticator,
 		state:         state,
 	}
@@ -70,24 +75,44 @@ func (s *spotifyUtilDefaultImpl) GetClient(token *oauth2.Token) spotify.Client {
 func (s *spotifyUtilDefaultImpl) updateUserData(token *oauth2.Token) error {
 	client := s.GetClient(token)
 
-	sUser, err := client.CurrentUser()
+	spotifyUser, err := client.CurrentUser()
 	if err != nil {
 		return err
 	}
 
-	dUser, err := (*s.userRepo).GetByID(sUser.ID)
+	deckifyUser, err := (*s.userRepo).GetByID(spotify.ID(spotifyUser.ID))
 	if err != nil {
-		dUser = user.User{
-			CreatedAt:       time.Now().UTC(),
-			LastPlayedItems: make([]spotify.RecentlyPlayedItem, 0),
+		deckifyUser = user.User{
+			CreatedAt:    time.Now().UTC(),
+			PlayedTracks: make([]spotify.RecentlyPlayedItem, 0),
 		}
+
+		newGroup := group.Group{
+			Name:      "Your Deck <3",
+			Users:     make(map[spotify.ID]struct{}),
+			CreatedAt: time.Now().UTC(),
+			UpdatedAt: time.Now().UTC(),
+			Active:    true,
+		}
+
+		newGroup.Owner = spotify.ID(spotifyUser.ID)
+		newGroup.Users[spotify.ID(spotifyUser.ID)] = struct{}{}
+
+		spotifyPlaylist, err := client.CreatePlaylistForUser(spotifyUser.ID, newGroup.Name, "Created by Deckify", true)
+		if err != nil {
+			return err
+		}
+
+		newGroup.ID = spotifyPlaylist.ID
+		(*s.groupRepo).InsertOrUpdate(newGroup)
 	}
 
-	dUser.UserInfo = *sUser
-	dUser.Token = *token
-	dUser.UpdatedAt = time.Now().UTC()
-	dUser.Active = true
-	(*s.userRepo).InsertOrUpdate(dUser)
+	deckifyUser.ID = spotify.ID(spotifyUser.ID)
+	deckifyUser.UserInfo = *spotifyUser
+	deckifyUser.Token = *token
+	deckifyUser.UpdatedAt = time.Now().UTC()
+	deckifyUser.Active = true
+	(*s.userRepo).InsertOrUpdate(deckifyUser)
 
 	return nil
 }

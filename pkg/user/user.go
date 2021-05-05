@@ -8,10 +8,11 @@ import (
 )
 
 type User struct {
-	UserInfo        spotify.PrivateUser
-	LastPlayedItems []spotify.RecentlyPlayedItem
-	Token           oauth2.Token
-	CreatedAt       time.Time
-	UpdatedAt       time.Time
-	Active          bool
+	ID           spotify.ID
+	UserInfo     spotify.PrivateUser
+	PlayedTracks []spotify.RecentlyPlayedItem
+	Token        oauth2.Token
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
+	Active       bool
 }

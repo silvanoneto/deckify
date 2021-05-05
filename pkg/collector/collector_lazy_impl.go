@@ -60,8 +60,8 @@ func (c *lazyCollector) collectLastPlayedItems(user *user.User, limit uint) erro
 	options := &spotify.RecentlyPlayedOptions{
 		Limit: int(limit),
 	}
-	if len(user.LastPlayedItems) > 0 {
-		lastItem := user.LastPlayedItems[len(user.LastPlayedItems)-1]
+	if len(user.PlayedTracks) > 0 {
+		lastItem := user.PlayedTracks[len(user.PlayedTracks)-1]
 		options.AfterEpochMs = lastItem.PlayedAt.UnixNano() /
 			int64(time.Millisecond)
 	}
@@ -79,7 +79,7 @@ func (c *lazyCollector) collectLastPlayedItems(user *user.User, limit uint) erro
 
 	c.printNewPlayedItems(user, reversedItems)
 
-	user.LastPlayedItems = append(user.LastPlayedItems, reversedItems...)
+	user.PlayedTracks = append(user.PlayedTracks, reversedItems...)
 	return nil
 }
 

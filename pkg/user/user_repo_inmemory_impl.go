@@ -3,29 +3,31 @@ package user
 import (
 	"errors"
 	"sync"
+
+	"github.com/zmb3/spotify"
 )
 
 type userRepoInMemoryImpl struct {
-	users map[string]User
+	users map[spotify.ID]User
 	mu    sync.RWMutex
 }
 
 func NewUserRepoInMemoryImpl() UserRepo {
 	return &userRepoInMemoryImpl{
-		users: make(map[string]User),
+		users: make(map[spotify.ID]User),
 	}
 }
 
 func (repo *userRepoInMemoryImpl) InsertOrUpdate(user User) {
-	if user.UserInfo.ID == "" {
+	if user.ID == "" {
 		return
 	}
 	repo.mu.Lock()
 	defer repo.mu.Unlock()
-	repo.users[user.UserInfo.ID] = user
+	repo.users[user.ID] = user
 }
 
-func (repo *userRepoInMemoryImpl) Remove(ID string) error {
+func (repo *userRepoInMemoryImpl) Remove(ID spotify.ID) error {
 	repo.mu.Lock()
 	defer repo.mu.Unlock()
 	if user, ok := repo.users[ID]; !ok {
@@ -37,7 +39,7 @@ func (repo *userRepoInMemoryImpl) Remove(ID string) error {
 	}
 }
 
-func (repo *userRepoInMemoryImpl) GetByID(ID string) (User, error) {
+func (repo *userRepoInMemoryImpl) GetByID(ID spotify.ID) (User, error) {
 	repo.mu.RLock()
 	defer repo.mu.RUnlock()
 	if user, ok := repo.users[ID]; !ok {

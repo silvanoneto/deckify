@@ -13,11 +13,11 @@ import (
 
 type userRepoMockImpl struct{}
 
-func (r *userRepoMockImpl) InsertOrUpdate(user.User)            {}
-func (r *userRepoMockImpl) Remove(string) error                 { return nil }
-func (r *userRepoMockImpl) GetByID(string) (user.User, error)   { return user.User{}, nil }
-func (r *userRepoMockImpl) GetAllActive(uint, uint) []user.User { return []user.User{} }
-func NewUserRepoMockImpl() user.UserRepo                        { return &userRepoMockImpl{} }
+func (r *userRepoMockImpl) InsertOrUpdate(user.User)              {}
+func (r *userRepoMockImpl) Remove(spotify.ID) error               { return nil }
+func (r *userRepoMockImpl) GetByID(spotify.ID) (user.User, error) { return user.User{}, nil }
+func (r *userRepoMockImpl) GetAllActive(uint, uint) []user.User   { return []user.User{} }
+func NewUserRepoMockImpl() user.UserRepo                          { return &userRepoMockImpl{} }
 
 type spotifyUtilMockImpl struct{}
 

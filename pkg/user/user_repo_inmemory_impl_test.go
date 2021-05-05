@@ -14,7 +14,7 @@ func TestNewUserRepoInMemoryImpl(t *testing.T) {
 	}{
 		{
 			name: "createAnInstance",
-			want: &userRepoInMemoryImpl{users: make(map[string]User)},
+			want: &userRepoInMemoryImpl{users: make(map[spotify.ID]User)},
 		},
 	}
 	for _, tt := range tests {
@@ -28,7 +28,7 @@ func TestNewUserRepoInMemoryImpl(t *testing.T) {
 
 func Test_userRepoInMemoryImpl_InsertOrUpdate(t *testing.T) {
 	type fields struct {
-		users map[string]User
+		users map[spotify.ID]User
 	}
 	type args struct {
 		user User
@@ -40,21 +40,21 @@ func Test_userRepoInMemoryImpl_InsertOrUpdate(t *testing.T) {
 	}{
 		{
 			name:   "insertEntity",
-			fields: fields{users: make(map[string]User)},
-			args:   args{user: User{UserInfo: spotify.PrivateUser{User: spotify.User{ID: "ABC"}}, Active: true}},
+			fields: fields{users: make(map[spotify.ID]User)},
+			args:   args{user: User{ID: "ABC", Active: true}},
 		},
 		{
 			name: "updateEntity",
 			fields: fields{
-				users: map[string]User{
-					"ABC": {UserInfo: spotify.PrivateUser{User: spotify.User{ID: "ABC"}}, Active: false},
+				users: map[spotify.ID]User{
+					"ABC": {ID: "ABC", Active: false},
 				},
 			},
-			args: args{user: User{UserInfo: spotify.PrivateUser{User: spotify.User{ID: "ABC"}}, Active: true}},
+			args: args{user: User{ID: "ABC", Active: true}},
 		},
 		{
 			name:   "insertOrUpdateEmptyEntity",
-			fields: fields{users: make(map[string]User)},
+			fields: fields{users: make(map[spotify.ID]User)},
 			args:   args{user: User{}},
 		},
 	}
@@ -70,10 +70,10 @@ func Test_userRepoInMemoryImpl_InsertOrUpdate(t *testing.T) {
 
 func Test_userRepoInMemoryImpl_Remove(t *testing.T) {
 	type fields struct {
-		users map[string]User
+		users map[spotify.ID]User
 	}
 	type args struct {
-		ID string
+		ID spotify.ID
 	}
 	tests := []struct {
 		name    string
@@ -83,15 +83,15 @@ func Test_userRepoInMemoryImpl_Remove(t *testing.T) {
 	}{
 		{
 			name:    "removeNonExistentUser",
-			fields:  fields{users: make(map[string]User)},
+			fields:  fields{users: make(map[spotify.ID]User)},
 			args:    args{ID: "ABC"},
 			wantErr: true,
 		},
 		{
 			name: "removeAnExistentUser",
 			fields: fields{
-				users: map[string]User{
-					"ABC": {UserInfo: spotify.PrivateUser{User: spotify.User{ID: "ABC"}}, Active: true},
+				users: map[spotify.ID]User{
+					"ABC": {ID: "ABC", Active: true},
 				},
 			},
 			args:    args{ID: "ABC"},
@@ -112,10 +112,10 @@ func Test_userRepoInMemoryImpl_Remove(t *testing.T) {
 
 func Test_userRepoInMemoryImpl_GetByID(t *testing.T) {
 	type fields struct {
-		users map[string]User
+		users map[spotify.ID]User
 	}
 	type args struct {
-		ID string
+		ID spotify.ID
 	}
 	tests := []struct {
 		name    string
@@ -126,7 +126,7 @@ func Test_userRepoInMemoryImpl_GetByID(t *testing.T) {
 	}{
 		{
 			name:    "getNonExistentUser",
-			fields:  fields{users: make(map[string]User)},
+			fields:  fields{users: make(map[spotify.ID]User)},
 			args:    args{ID: "ABC"},
 			want:    User{},
 			wantErr: true,
@@ -134,12 +134,12 @@ func Test_userRepoInMemoryImpl_GetByID(t *testing.T) {
 		{
 			name: "getAnExistentUser",
 			fields: fields{
-				users: map[string]User{
-					"ABC": {UserInfo: spotify.PrivateUser{User: spotify.User{ID: "ABC"}}, Active: true},
+				users: map[spotify.ID]User{
+					"ABC": {ID: "ABC", Active: true},
 				},
 			},
 			args:    args{ID: "ABC"},
-			want:    User{UserInfo: spotify.PrivateUser{User: spotify.User{ID: "ABC"}}, Active: true},
+			want:    User{ID: "ABC", Active: true},
 			wantErr: false,
 		},
 	}
@@ -162,7 +162,7 @@ func Test_userRepoInMemoryImpl_GetByID(t *testing.T) {
 
 func Test_userRepoInMemoryImpl_GetAllActive(t *testing.T) {
 	type fields struct {
-		users map[string]User
+		users map[spotify.ID]User
 	}
 	type args struct {
 		pageNumber uint
@@ -176,25 +176,25 @@ func Test_userRepoInMemoryImpl_GetAllActive(t *testing.T) {
 	}{
 		{
 			name:   "getWhenUserListIsEmpty",
-			fields: fields{users: make(map[string]User)},
+			fields: fields{users: make(map[spotify.ID]User)},
 			args:   args{pageNumber: 0, pageSize: 1},
 			want:   []User{},
 		},
 		{
 			name: "getUserListFirstPage",
 			fields: fields{
-				users: map[string]User{
-					"ABC": {UserInfo: spotify.PrivateUser{User: spotify.User{ID: "ABC"}}, Active: true},
+				users: map[spotify.ID]User{
+					"ABC": {ID: "ABC", Active: true},
 				},
 			},
 			args: args{pageNumber: 0, pageSize: 10},
-			want: []User{{UserInfo: spotify.PrivateUser{User: spotify.User{ID: "ABC"}}, Active: true}},
+			want: []User{{ID: "ABC", Active: true}},
 		},
 		{
 			name: "getUserListEmptyPage",
 			fields: fields{
-				users: map[string]User{
-					"ABC": {UserInfo: spotify.PrivateUser{User: spotify.User{ID: "ABC"}}, Active: true},
+				users: map[spotify.ID]User{
+					"ABC": {ID: "ABC", Active: true},
 				},
 			},
 			args: args{pageNumber: 1, pageSize: 1},

@@ -5,7 +5,7 @@
 [![GoReportCard example](https://goreportcard.com/badge/github.com/silvanoneto/deckify)](https://goreportcard.com/report/github.com/silvanoneto/deckify)
 [![GitHub license](https://img.shields.io/github/license/silvanoneto/deckify.svg)](https://github.com/silvanoneto/deckify/main/LICENSE)
 
-Deckify collects the recently played musics from spotify users
+Deckify collects the recently played musics from spotify users and creates automatic collaborative playlists
 
 ### How to run it locally
 
@@ -19,6 +19,9 @@ After this:
     - SPOTIFY_SECRET={your spotify client secret}
     - DECKIFY_COLLECTOR_PAGESIZE=100
     - DECKIFY_COLLECTOR_CALL_INTERVAL_TIME_IN_SECONDS=5
+    - DECKIFY_STACKER_PAGESIZE=100
+    - DECKIFY_STACKER_CALL_INTERVAL_TIME_IN_SECONDS=15
+    - DECKIFY_STACKER_TRACK_WINDOW_IN_DAYS=30
 3. Run the following commands:
 ```sh
 go mod download
@@ -32,6 +35,9 @@ go run deckify.go
     - SPOTIFY_SECRET={your spotify client secret}
     - DECKIFY_COLLECTOR_PAGESIZE=100
     - DECKIFY_COLLECTOR_CALL_INTERVAL_TIME_IN_SECONDS=5
+    - DECKIFY_STACKER_PAGESIZE=100
+    - DECKIFY_STACKER_CALL_INTERVAL_TIME_IN_SECONDS=15
+    - DECKIFY_STACKER_TRACK_WINDOW_IN_DAYS=30
 2. Run the following commands:
 ```sh
 docker pull silvanoneto/deckify
